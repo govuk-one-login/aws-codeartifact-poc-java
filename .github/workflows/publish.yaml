@@ -1,0 +1,32 @@
+name: publish
+
+permissions:
+  contents: read
+  id-token: write
+
+on:
+  workflow_dispatch:
+
+jobs:
+  login:
+    name: Publish package to AWS CodeArtifact
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v5.1.1
+        with:
+          audience: sts.amazonaws.com
+          aws-region: eu-west-2
+          role-to-assume: arn:aws:iam::992382788472:role/nickheal-codeartifact-poc-publisher
+
+      - name: Get token and update secret
+        run: |
+          export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain nickheal-poc --domain-owner 992382788472 --region eu-west-2 --query authorizationToken --output text`
+
+      - name: Install dependencies from AWS CodeArtifact
+        run: ./gradlew build
+
+      - name: Publish this package to AWS CodeArtifact
+        run: ./gradlew publish

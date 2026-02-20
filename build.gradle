@@ -1,0 +1,51 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
+group = 'com.example'
+version = '1.0.0'
+
+java {
+    sourceCompatibility = '11'
+    targetCompatibility = '11'
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://nickheal-poc-992382788472.d.codeartifact.eu-west-2.amazonaws.com/maven/nickheal-poc"
+        credentials {
+            username "aws"
+            password System.env.CODEARTIFACT_AUTH_TOKEN
+        }
+    }
+}
+
+dependencies {
+    // Minimal dependency to test pulling from CodeArtifact
+    implementation 'org.slf4j:slf4j-api:2.0.9'
+    implementation 'org.slf4j:slf4j-simple:2.0.9'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+
+            groupId = project.group
+            artifactId = rootProject.name
+            version = project.version
+        }
+    }
+
+    repositories {
+        maven {
+            url "https://nickheal-poc-992382788472.d.codeartifact.eu-west-2.amazonaws.com/maven/nickheal-poc"
+            credentials {
+                username "aws"
+                password System.env.CODEARTIFACT_AUTH_TOKEN
+            }
+        }
+    }
+}

@@ -1,0 +1,30 @@
+name: Update CodeArtifact token for dependabot
+
+permissions:
+  id-token: write
+  contents: read
+
+on:
+  schedule:
+    - cron: 0 */11 * * *
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_CLI }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v5.1.1
+        with:
+          audience: sts.amazonaws.com
+          aws-region: eu-west-2
+          role-to-assume: arn:aws:iam::992382788472:role/nickheal-codeartifact-poc-reader
+
+      - name: Get token and update secret
+        run: |
+          export CODEARTIFACT_AUTH_TOKEN=`aws codeartifact get-authorization-token --domain nickheal-poc --domain-owner 992382788472 --region eu-west-2 --query authorizationToken --output text`
+          gh secret set CODEARTIFACT_TOKEN --app dependabot --body "$CODEARTIFACT_AUTH_TOKEN"
