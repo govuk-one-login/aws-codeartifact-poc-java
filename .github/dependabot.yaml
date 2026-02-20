@@ -1,0 +1,15 @@
+version: 2
+
+registries:
+  maven-codeartifact:
+    type: maven-registry
+    url: https://nickheal-poc-992382788472.d.codeartifact.eu-west-2.amazonaws.com/maven/nickheal-poc
+    token: ${{secrets.CODEARTIFACT_TOKEN}}
+
+updates:
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    registries:
+      - maven-codeartifact
